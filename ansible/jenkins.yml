@@ -1,0 +1,27 @@
+---
+- hosts: web
+  become: true
+  tasks:
+    - name: install Java
+      apt: name={{item}} state=installed
+      with_items:
+           - openjdk-8-jdk
+           - openjdk-8-jre
+    - name: install Jenkins repo key
+      apt_key: url=https://pkg.jenkins.io/debian/jenkins-ci.org.key state=present
+    - name: add jenkins repo
+      command: sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'  
+    - name: apt update
+      apt:
+        update_cache: yes
+    - name: install jenkins
+      apt:
+        name: jenkins
+        state: present
+    - name: Jenkins - configure | Turn off Jenkins setup wizard
+      lineinfile:
+        dest: /etc/default/jenkins
+        regexp: '^JAVA_ARGS='
+        line: 'JAVA_ARGS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
+      notify:
+        - restart jenkins

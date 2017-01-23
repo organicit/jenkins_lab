@@ -1,0 +1,7 @@
+---
+- hosts: windows
+  tasks:
+    - name: Create Some Folder
+      win_file:
+        path: C:\temp\ansible
+        state: directory 
